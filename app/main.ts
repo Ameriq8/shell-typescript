@@ -1,4 +1,5 @@
 import { createInterface } from "readline";
+import { existsSync } from "fs";
 
 const rl = createInterface({
   input: process.stdin,
@@ -32,35 +33,36 @@ rl.on("line", (input) => {
       }
       break;
 
-      case "type":
-        if (args.length === 0) {
-          console.log("type: missing operand");
-        }
+    case "type":
+      if (args.length === 0) {
+        console.log("type: missing operand");
+      }
 
-        if (builtins.includes(args[0] as BuiltinCommand)) {
-          console.log(`${args[0]} is a shell builtin`);
-        } else {
-          const dirs = (process.env.PATH || "").split(":");
-          let found = false;
+      if (builtins.includes(args[0] as BuiltinCommand)) {
+        console.log(`${args[0]} is a shell builtin`);
+      } else {
+        const dirs = (process.env.PATH || "").split(":");
+        let found = false;
 
-          for (const dir of dirs) {
-            const fullPath = `${dir}/${args[0]}`;
-            try {
-              const stat = require("fs").statSync(fullPath);
-              if (stat.isFile() && (stat.mode & 0o111)) {
-                console.log(`${args[0]}: ${fullPath}`);
-                found = true;
-                break;
-              }
-            } catch (err) {
-              // File does not exist, continue searching
+        for (const dir of dirs) {
+          const fullPath = `${dir}/${args[0]}`;
+          try {
+            
+            const file = existsSync(fullPath);
+            if (file) {
+              console.log(`${args[0]}: ${fullPath}`);
+              found = true;
+              break;
             }
-          }
-
-          if (!found) {
-            console.log(`${args[0]}: not found`);
+          } catch (err) {
+            // File does not exist, continue searching
           }
         }
+
+        if (!found) {
+          console.log(`${args[0]}: not found`);
+        }
+      }
 
       break;
 
