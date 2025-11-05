@@ -1,5 +1,6 @@
 import { createInterface } from "readline";
-import { existsSync } from "fs";
+import { existsSync, statSync } from "fs";
+import path from "path";
 
 const rl = createInterface({
   input: process.stdin,
@@ -39,18 +40,36 @@ rl.on("line", (input) => {
         console.log("type: missing operand");
       }
 
-      if (builtins.includes(args[0] as BuiltinCommand)) {
-        console.log(`${args[0]} is a shell builtin`);
-      } else {
-        for (const p of paths) {
-          const filePath = `${p}/${args[0]}`;
-          if (existsSync(filePath)) {
-            rl.write(`${args[0]} is ${filePath}\n`);
-            return;
-          }
-        }
+      const target = args[0];
 
-        console.log(`${args[0]}: not found`);
+      // 1️⃣ Check if builtin
+      if (builtins.includes(target as BuiltinCommand)) {
+        console.log(`${target} is a shell builtin`);
+        break;
+      }
+
+      // 2️⃣ Search in PATH
+      let found = false;
+      for (const dir of paths) {
+        const filePath = path.join(dir, target);
+        try {
+          if (existsSync(filePath)) {
+            const stats = statSync(filePath);
+            // Check if executable (Unix-style)
+            if ((stats.mode & 0o111) !== 0) {
+              console.log(`${target} is ${filePath}`);
+              found = true;
+              break;
+            }
+          }
+        } catch {
+          continue; // ignore invalid dirs
+        }
+      }
+
+      // 3️⃣ If not found
+      if (!found) {
+        console.log(`${target}: not found`);
       }
 
       break;
