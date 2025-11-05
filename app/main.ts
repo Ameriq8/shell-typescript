@@ -13,6 +13,7 @@ type BuiltinCommand = "exit" | "echo" | "type";
 
 // Runtime array for lookup
 const builtins: BuiltinCommand[] = ["exit", "echo", "type"];
+const paths = process.env["PATH"]?.split(":") || [];
 
 rl.on("line", (input) => {
   const [command, ...args] = input.trim().split(" ") as [
@@ -41,8 +42,6 @@ rl.on("line", (input) => {
       if (builtins.includes(args[0] as BuiltinCommand)) {
         console.log(`${args[0]} is a shell builtin`);
       } else {
-        const paths = (process.env.PATH || "").split(":");
-        
         for (const p of paths) {
           const filePath = `${p}/${input}`;
           if (existsSync(filePath)) {
