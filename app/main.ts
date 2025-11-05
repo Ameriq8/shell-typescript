@@ -15,6 +15,40 @@ rl.prompt();
 const builtins = new Set(["exit", "echo", "type", "pwd", "cd"]);
 const paths = process.env["PATH"]?.split(":") || [];
 
+function parseCommand(input: string): string[] {
+  const args: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  let quoteChar = "";
+
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i];
+
+    if ((char === '"' || char === "'")) {
+      // Toggle quoting if not escaped and either opening or matching quote
+      if (!inQuotes) {
+        inQuotes = true;
+        quoteChar = char;
+      } else if (char === quoteChar) {
+        inQuotes = false;
+        quoteChar = "";
+      } else {
+        current += char; // different quote inside another quote
+      }
+    } else if (char === " " && !inQuotes) {
+      if (current !== "") {
+        args.push(current);
+        current = "";
+      }
+    } else {
+      current += char;
+    }
+  }
+
+  if (current !== "") args.push(current);
+  return args;
+}
+
 function searchInPath(command: string): string | null {
   for (const dir of paths) {
     const filePath = path.join(dir, command);
@@ -34,7 +68,8 @@ function searchInPath(command: string): string | null {
 }
 
 rl.on("line", (input) => {
-  const [command, ...args] = input.trim().split(" ");
+  const parts = parseCommand(input.trim());
+  const [command, ...args] = parts;
 
   switch (command) {
     case "exit":
@@ -43,7 +78,27 @@ rl.on("line", (input) => {
 
     case "echo":
       if (args.length > 0) {
-        console.log(args.join(" "));
+        // Here we will have the rules about quote and double quote handling
+        // i.e `echo "Hello World"` should print `Hello World` without quotes
+        // another examples `echo 'Hello World'` should also print `Hello World` without quotes,
+        // but `echo Hello World` should print `Hello World` as is,
+        // and `echo "Hello 'World'"` should print `Hello 'World'` preserving inner quotes.
+        // echo 'hello    world'	the output hello    world	Spaces are preserved within quotes.
+        // echo hello    world	the output hello world	Consecutive spaces are collapsed unless quoted.
+        // echo 'hello''world'	the output helloworld	Adjacent quoted strings 'hello' and 'world' are concatenated.
+        // echo hello''world	the output helloworld	Empty quotes '' are ignored and adjacent strings are concatenated.
+        const output = args
+          .map((arg) => {
+            if (
+              (arg.startsWith('"') && arg.endsWith('"')) ||
+              (arg.startsWith("'") && arg.endsWith("'"))
+            ) {
+              return arg.slice(1, -1);
+            }
+            return arg;
+          })
+          .join(" ");
+        console.log(output);
       } else {
         console.log();
       }
