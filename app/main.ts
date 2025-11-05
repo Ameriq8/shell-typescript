@@ -76,7 +76,12 @@ function searchInPath(command: string): string | null {
 
 rl.on("line", (input) => {
   const parts = parseCommand(input.trim());
-  const [command, ...args] = parts;
+  if (parts.length === 0) {
+    rl.prompt();
+    return;
+  }
+  const command = parts[0];
+  const args = parts.slice(1);
 
   switch (command) {
     case "exit":
