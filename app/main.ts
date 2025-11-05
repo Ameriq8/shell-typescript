@@ -43,9 +43,9 @@ rl.on("line", (input) => {
         console.log(`${args[0]} is a shell builtin`);
       } else {
         for (const p of paths) {
-          const filePath = `${p}/${input}`;
+          const filePath = `${p}/${args[0]}`;
           if (existsSync(filePath)) {
-            rl.write(`${input} is ${filePath}\n`);
+            rl.write(`${args[0]} is ${filePath}\n`);
             return;
           }
         }
