@@ -46,16 +46,10 @@ rl.on("line", (input) => {
 
         for (const dir of dirs) {
           const fullPath = `${dir}/${args[0]}`;
-          try {
-            
-            const file = existsSync(fullPath);
-            if (file) {
-              console.log(`${args[0]}: ${fullPath}`);
-              found = true;
-              break;
-            }
-          } catch (err) {
-            // File does not exist, continue searching
+          if (existsSync(fullPath)) {
+            console.log(`${args[0]} is ${fullPath}`);
+            found = true;
+            break;
           }
         }
 
