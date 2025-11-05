@@ -75,7 +75,7 @@ rl.on("line", (input) => {
     default:
       const found = searchInPath(command);
       if (found) {
-        execSync(`${found} ${args.join(" ")}`, { stdio: "inherit" });
+        execSync(input, { stdio: "inherit" });
       } else {
         console.log(`${command}: command not found`);
       }
