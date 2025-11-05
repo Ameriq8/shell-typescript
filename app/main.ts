@@ -12,7 +12,7 @@ rl.setPrompt("$ ");
 rl.prompt();
 
 // Runtime array for lookup
-const builtins = new Set(["exit", "echo", "type", "pwd"]);
+const builtins = new Set(["exit", "echo", "type", "pwd", "cd"]);
 const paths = process.env["PATH"]?.split(":") || [];
 
 function searchInPath(command: string): string | null {
@@ -73,6 +73,15 @@ rl.on("line", (input) => {
 
     case "pwd":
       console.log(process.cwd());
+      break;
+
+    case "cd":
+      const dir = args.length > 0 ? args[0] : process.env.HOME || "/";
+      try {
+        process.chdir(dir);
+      } catch (err) {
+        console.log(`cd: ${dir}: No such file or directory`);
+      }
       break;
 
     default:
