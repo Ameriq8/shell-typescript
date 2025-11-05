@@ -56,7 +56,6 @@ function parseCommand(input: string): string[] {
   return args;
 }
 
-
 function searchInPath(command: string): string | null {
   for (const dir of paths) {
     const filePath = path.join(dir, command);
