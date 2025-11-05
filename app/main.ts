@@ -41,21 +41,17 @@ rl.on("line", (input) => {
       if (builtins.includes(args[0] as BuiltinCommand)) {
         console.log(`${args[0]} is a shell builtin`);
       } else {
-        const dirs = (process.env.PATH || "").split(":");
-        let found = false;
-
-        for (const dir of dirs) {
-          const fullPath = `${dir}/${args[0]}`;
-          if (existsSync(fullPath)) {
-            console.log(`${args[0]} is ${fullPath}`);
-            found = true;
-            break;
+        const paths = (process.env.PATH || "").split(":");
+        
+        for (const p of paths) {
+          const filePath = `${p}/${input}`;
+          if (existsSync(filePath)) {
+            rl.write(`${input} is ${filePath}\n`);
+            return;
           }
         }
 
-        if (!found) {
-          console.log(`${args[0]}: not found`);
-        }
+        console.log(`${args[0]}: not found`);
       }
 
       break;
