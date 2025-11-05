@@ -42,15 +42,15 @@ function parseCommand(input: string): string[] {
       }
     } else if (char === "\\" && i + 1 < input.length) {
       // Handle escape character
+      current += input[i + 1];
       i++;
-      current += input[i];
     } else {
       current += char;
     }
   }
 
   if (current !== "") args.push(current);
-  
+
   return args;
 }
 
