@@ -13,8 +13,9 @@ rl.on("line", (input) => {
   const args = input.trim().split(" ").slice(1);
 
   switch (command) {
-    case "exit 0":
-      process.exit(0);
+    case "exit":
+      const code = args.length > 0 ? parseInt(args[0], 10) : 0;
+      process.exit(code);
     case "echo":
       if (args.length > 0) {
         console.log(args.join(" "));
