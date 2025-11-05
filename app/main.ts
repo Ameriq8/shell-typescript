@@ -32,15 +32,27 @@ function parseCommand(input: string): string[] {
         inQuotes = false;
         quoteChar = "";
       } else {
-        current += char; // different quote inside another quote
+        current += char;
       }
     } else if (char === "\\" && i + 1 < input.length) {
-      // Only interpret escape sequences if not inside single quotes
-      if (!inQuotes || quoteChar === '"') {
-        current += input[i + 1];
+      const next = input[i + 1];
+
+      // ✅ Proper escaping rules
+      if (quoteChar === '"') {
+        // Inside double quotes — handle \" and \'
+        if (next === '"' || next === "'" || next === "\\" ) {
+          current += next;
+          i++;
+        } else {
+          current += char; // keep backslash if not special
+        }
+      } else if (!inQuotes) {
+        // Outside quotes: backslash escapes next char
+        current += next;
         i++;
       } else {
-        current += "\\";
+        // Inside single quotes: keep backslash literally
+        current += char;
       }
     } else if (char === " " && !inQuotes) {
       if (current !== "") {
