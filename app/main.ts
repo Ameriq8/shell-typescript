@@ -139,10 +139,15 @@ rl.on("line", (input) => {
     default:
       const found = searchInPath(command);
       if (found) {
-        execSync(input, { stdio: "inherit" });
+        try {
+          execSync([found, ...args].join(" "), { stdio: "inherit" });
+        } catch {
+          console.log(`${command}: command not found`);
+        }
       } else {
         console.log(`${command}: command not found`);
       }
+      break;
   }
   rl.prompt();
 });
