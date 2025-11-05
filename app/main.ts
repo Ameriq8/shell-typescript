@@ -24,8 +24,7 @@ function parseCommand(input: string): string[] {
   for (let i = 0; i < input.length; i++) {
     const char = input[i];
 
-    if ((char === '"' || char === "'")) {
-      // Toggle quoting if not escaped and either opening or matching quote
+    if (char === '"' || char === "'") {
       if (!inQuotes) {
         inQuotes = true;
         quoteChar = char;
@@ -35,24 +34,28 @@ function parseCommand(input: string): string[] {
       } else {
         current += char; // different quote inside another quote
       }
+    } else if (char === "\\" && i + 1 < input.length) {
+      // Only interpret escape sequences if not inside single quotes
+      if (!inQuotes || quoteChar === '"') {
+        current += input[i + 1];
+        i++;
+      } else {
+        current += "\\";
+      }
     } else if (char === " " && !inQuotes) {
       if (current !== "") {
         args.push(current);
         current = "";
       }
-    } else if (char === "\\" && i + 1 < input.length) {
-      // Handle escape character
-      current += input[i + 1];
-      i++;
     } else {
       current += char;
     }
   }
 
   if (current !== "") args.push(current);
-
   return args;
 }
+
 
 function searchInPath(command: string): string | null {
   for (const dir of paths) {
