@@ -12,7 +12,7 @@ rl.setPrompt("$ ");
 rl.prompt();
 
 // Runtime array for lookup
-const builtins = new Set(["exit", "echo", "type"]);
+const builtins = new Set(["exit", "echo", "type", "pwd"]);
 const paths = process.env["PATH"]?.split(":") || [];
 
 function searchInPath(command: string): string | null {
@@ -69,7 +69,10 @@ rl.on("line", (input) => {
       } else {
         console.log(`${target}: not found`);
       }
+      break;
 
+    case "pwd":
+      console.log(process.cwd());
       break;
 
     default:
