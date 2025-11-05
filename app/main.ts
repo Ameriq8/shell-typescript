@@ -32,17 +32,31 @@ rl.on("line", (input) => {
       }
       break;
 
-      case "type":
-        if (args.length === 0) {
-          console.log("type: missing operand");
+    case "type":
+      if (args.length === 0) {
+        console.log("type: missing operand");
+      }
+
+      if (builtins.includes(args[0] as BuiltinCommand)) {
+        console.log(`${args[0]} is a shell builtin`);
+      } else {
+        const dirs = (process.env.PATH || "").split(":");
+        let found = false;
+
+        for (const dir of dirs) {
+          const fullPath = `${dir}/${args[0]}`;
+          const stat = require("fs").statSync(fullPath);
+          if (stat.isFile() && stat.mode & 0o111) {
+            console.log(`${args[0]}: ${fullPath}`);
+            found = true;
+            break;
+          }
         }
 
-        if (builtins.includes(args[0] as BuiltinCommand)) {
-          console.log(`${args[0]} is a shell builtin`);
-        } else {
+        if (!found) {
           console.log(`${args[0]}: not found`);
         }
-
+      }
       break;
 
     default:
