@@ -1,7 +1,7 @@
 import { createInterface } from "readline";
 import { existsSync, statSync } from "fs";
 import path from "path";
-import { execSync } from "child_process";
+import { execFileSync, execSync } from "child_process";
 
 const rl = createInterface({
   input: process.stdin,
@@ -140,7 +140,7 @@ rl.on("line", (input) => {
       const found = searchInPath(command);
       if (found) {
         try {
-          execSync([found, ...args].join(" "), { stdio: "inherit" });
+          execFileSync(found, args, { stdio: "inherit" });
         } catch {
           console.log(`${command}: command not found`);
         }
