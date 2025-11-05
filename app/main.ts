@@ -78,7 +78,12 @@ rl.on("line", (input) => {
     case "cd":
       const dir = args.length > 0 ? args[0] : process.env.HOME || "/";
       try {
-        process.chdir(dir);
+        // Here if the args[0] was "~", we should expand it to home directory
+        if (dir === "~") {
+          process.chdir(process.env.HOME || "/");
+        } else {
+          process.chdir(dir);
+        }
       } catch (err) {
         console.log(`cd: ${dir}: No such file or directory`);
       }
