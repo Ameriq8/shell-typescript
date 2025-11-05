@@ -50,6 +50,7 @@ function parseCommand(input: string): string[] {
   }
 
   if (current !== "") args.push(current);
+  
   return args;
 }
 
