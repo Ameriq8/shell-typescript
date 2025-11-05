@@ -40,6 +40,10 @@ function parseCommand(input: string): string[] {
         args.push(current);
         current = "";
       }
+    } else if (char === "\\" && i + 1 < input.length) {
+      // Handle escape character
+      i++;
+      current += input[i];
     } else {
       current += char;
     }
@@ -78,27 +82,7 @@ rl.on("line", (input) => {
 
     case "echo":
       if (args.length > 0) {
-        // Here we will have the rules about quote and double quote handling
-        // i.e `echo "Hello World"` should print `Hello World` without quotes
-        // another examples `echo 'Hello World'` should also print `Hello World` without quotes,
-        // but `echo Hello World` should print `Hello World` as is,
-        // and `echo "Hello 'World'"` should print `Hello 'World'` preserving inner quotes.
-        // echo 'hello    world'	the output hello    world	Spaces are preserved within quotes.
-        // echo hello    world	the output hello world	Consecutive spaces are collapsed unless quoted.
-        // echo 'hello''world'	the output helloworld	Adjacent quoted strings 'hello' and 'world' are concatenated.
-        // echo hello''world	the output helloworld	Empty quotes '' are ignored and adjacent strings are concatenated.
-        const output = args
-          .map((arg) => {
-            if (
-              (arg.startsWith('"') && arg.endsWith('"')) ||
-              (arg.startsWith("'") && arg.endsWith("'"))
-            ) {
-              return arg.slice(1, -1);
-            }
-            return arg;
-          })
-          .join(" ");
-        console.log(output);
+        console.log(args.join(" "));
       } else {
         console.log();
       }
